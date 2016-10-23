@@ -30,7 +30,7 @@ class NeuralNetwork:
 
 	def compute(self, inputs):
 		"""
-		Computes the result of the netword by propagation
+		Computes the result of the network by propagation
 		"""
 		res = inputs
 		for layer in range(self.layersNumber):
@@ -39,11 +39,12 @@ class NeuralNetwork:
 			res = fActivation(np.dot(weight, res) + bias)
 		return res
 
-	def backpropagation(self, inputs, targets, learningRate, batchSize,
-		probabilistic, maxIteration):
+	def backpropagationWeighted(self, inputs, inputsWeights, targets,
+		learningRate, batchSize, probabilistic, maxIteration):
 		"""
 		Computes the backpropagation of the gradient in order to reduce the
-		quadratic error
+		quadratic error with a weight for each input
+		Standard backpropagation is when weights are all equal to one
 		"""
 		error, pastError = 0, 0
 		for iteration in range(maxIteration):
@@ -57,6 +58,7 @@ class NeuralNetwork:
 				permut = np.random.permutation(len(targets))
 				inputs = inputs[permut]
 				targets = targets[permut]
+				inputsWeights = inputsWeights[permut]
 
 			# Computes each image
 			for batch in range(len(targets)//batchSize - 1):
@@ -66,9 +68,9 @@ class NeuralNetwork:
 				# Computes the difference for each batch
 				for i in range(batch*batchSize,(batch+1)*batchSize):
 					diffWeight, diffBias, diffError = self.computeDiff(inputs[i], targets[i])
-					totalDiffWeight = [totalDiffWeight[j] + diffWeight[j]
+					totalDiffWeight = [totalDiffWeight[j] + diffWeight[j]*inputsWeights[j]
 										for j in range(len(totalDiffWeight))]
-					totalDiffBias = [totalDiffBias[j] + diffBias[j]
+					totalDiffBias = [totalDiffBias[j] + diffBias[j]*inputsWeights[j]
 										for j in range(len(totalDiffBias))]
 					error += diffError
 

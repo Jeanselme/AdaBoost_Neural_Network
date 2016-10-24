@@ -32,7 +32,7 @@ class AdaBoostNeuralNetwork:
 		accurate one on the given data
 		"""
 		# TODO : Update the weight with respect of the error
-		inputsWeights = np.array([1/len(inputs) for i in inputs])
+		inputsWeights = np.array([1 for i in inputs])
 		for weakClassifier in self.weakClassifiers:
 			print("Train weak classifier")
 			weakClassifier.backpropagationWeighted(inputs, inputsWeights, targets,

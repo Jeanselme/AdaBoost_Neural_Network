@@ -25,19 +25,31 @@ class AdaBoostNeuralNetwork:
 		"""
 		self.weakClassifiers.append(Network.NeuralNetwork(layers))
 
-	def train(self, inputs, targets, learningRate, batchSize,
-		probabilistic, maxIteration):
+	def train(self, inputs, targets, learningRate, batchSize, maxIteration):
 		"""
 		Computes the combanison of weak classifiers in order to have the most
 		accurate one on the given data
 		"""
-		# TODO : Update the weight with respect of the error
-		inputsWeights = np.array([1 for i in inputs])
+		inputsWeights = np.array([1/len(inputs) for i in inputs])
 		for weakClassifier in self.weakClassifiers:
 			print("Train weak classifier")
-			weakClassifier.backpropagationWeighted(inputs, inputsWeights, targets,
-				learningRate, batchSize, probabilistic, maxIteration)
-			self.classifiersWeights.append(1./len(self.weakClassifiers))
+			error, classes = weakClassifier.backpropagationWeighted(inputs,
+				np.dot(inputsWeights, 1/min(inputsWeights)), targets, learningRate,
+				batchSize, maxIteration)
+
+			# Computes the classifier weight
+			errorWellClassified = sum([np.exp(error[i]) for i in range(len(classes)) if classes[i]])
+			errorMisClassified = sum([np.exp(error[i]) for i in range(len(classes)) if not classes[i]])
+			alpha = 0.5 * np.log(errorWellClassified/errorMisClassified)
+			self.classifiersWeights.append(alpha)
+
+			# Computes inputs weights
+			for i in range(len(classes)):
+				if classes[i] :
+					inputsWeights[i] *= np.exp(-alpha + error[i])
+				else :
+					inputsWeights[i] *= np.exp(alpha + error[i])
+			np.dot(inputsWeights, 1./sum(inputsWeights))
 
 	def compute(self, inputs):
 		"""

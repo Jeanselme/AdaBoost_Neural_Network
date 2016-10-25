@@ -40,25 +40,20 @@ class NeuralNetwork:
 		return res
 
 	def backpropagationWeighted(self, inputs, inputsWeights, targets,
-		learningRate, batchSize, probabilistic, maxIteration):
+		learningRate, batchSize, maxIteration):
 		"""
 		Computes the backpropagation of the gradient in order to reduce the
 		quadratic error with a weight for each input
 		Standard backpropagation is when weights are all equal to one
 		"""
 		error, pastError = 0, 0
+		errorVector, classifiedVector = [], []
 		for iteration in range(maxIteration):
+			errorVector, classifiedVector = [], []
 			# Decrease the learningRate
 			if iteration > 1 and error > pastError :
 				learningRate /= 2
 			pastError = error
-
-			# Changes order of the dataset
-			if probabilistic :
-				permut = np.random.permutation(len(targets))
-				inputs = inputs[permut]
-				targets = targets[permut]
-				inputsWeights = inputsWeights[permut]
 
 			# Computes each image
 			for batch in range(len(targets)//batchSize - 1):
@@ -67,12 +62,16 @@ class NeuralNetwork:
 
 				# Computes the difference for each batch
 				for i in range(batch*batchSize,(batch+1)*batchSize):
-					diffWeight, diffBias, diffError = self.computeDiff(inputs[i], targets[i])
+					# TODO : Change the update of the weight in order to take
+					# into account inputs weights
+					diffWeight, diffBias, diffError, classified = self.computeDiff(inputs[i], targets[i])
 					totalDiffWeight = [totalDiffWeight[j] + diffWeight[j]*inputsWeights[j]
 										for j in range(len(totalDiffWeight))]
 					totalDiffBias = [totalDiffBias[j] + diffBias[j]*inputsWeights[j]
 										for j in range(len(totalDiffBias))]
 					error += diffError
+					errorVector.append(diffError)
+					classifiedVector.append(classified)
 
 				# Update weights and biases of each neuron
 				self.weights = [self.weights[i] - learningRate*totalDiffWeight[i]
@@ -81,6 +80,8 @@ class NeuralNetwork:
 									for i in range(len(totalDiffBias))]
 			print("{} / {}".format(iteration+1, maxIteration), end = '\r')
 		print("\nBackPropagation done !")
+
+		return errorVector, classifiedVector
 
 	def computeDiff(self, input, target):
 		"""
@@ -101,6 +102,10 @@ class NeuralNetwork:
 			layerSum.append(layerRes)
 			layerAct.append(lastRes)
 
+		classified = False
+		if (np.argmax(lastRes) == np.argmax(target)) :
+			classified = True
+
 		# Backward
 		diffError = sum(fCost(lastRes, target))
 		delta = dCost(lastRes, target) * dActivation(lastRes)
@@ -112,4 +117,4 @@ class NeuralNetwork:
 			diffBias[layer] = delta
 			diffWeight[layer] = np.dot(delta, layerAct[layer].transpose())
 
-		return diffWeight, diffBias, diffError
+		return diffWeight, diffBias, diffError, classified

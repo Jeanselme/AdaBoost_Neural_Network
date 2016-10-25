@@ -32,7 +32,7 @@ def dataExtraction():
 	return training_labels, training_images, testing_labels, testing_images
 
 def analysis(layers, training_labels, training_images, testing_labels, testing_images,
-	 learningRate, batchSize, probabilistic, iteration):
+	 learningRate, batchSize, iteration):
 	ada = Adaboost.AdaBoostNeuralNetwork()
 
 	for layer in layers:
@@ -40,7 +40,7 @@ def analysis(layers, training_labels, training_images, testing_labels, testing_i
 
 	print("Start training")
 	ada.train(training_images, training_labels, learningRate, batchSize,
-		probabilistic, iteration)
+		iteration)
 
 	print("Test")
 	print("On the training set : {} / {}".format(
@@ -51,5 +51,8 @@ def analysis(layers, training_labels, training_images, testing_labels, testing_i
 if __name__ == '__main__':
 	trainL, trainI, testL, testI = dataExtraction()
 
-	analysis([[784,25,10],[784,15,10],[784,30,10]],trainL, trainI, testL, testI,
-		0.01, 10, True, 3)
+	analysis([[784,25,10],[784,25,10],[784,25,10]],trainL, trainI, testL, testI,
+		0.01, 10, 10)
+
+	analysis([[784,25,10],[784,25,10],[784,25,10],[784,25,10],[784,25,10]],
+		trainL, trainI, testL, testI, 0.01, 10, 10)

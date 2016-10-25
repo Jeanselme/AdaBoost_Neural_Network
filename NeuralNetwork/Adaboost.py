@@ -34,7 +34,7 @@ class AdaBoostNeuralNetwork:
 		for weakClassifier in self.weakClassifiers:
 			print("Train weak classifier")
 			error, classes = weakClassifier.backpropagationWeighted(inputs,
-				np.dot(inputsWeights, 1/min(inputsWeights)), targets, learningRate,
+				np.dot(inputsWeights, len(inputsWeights)), targets, learningRate,
 				batchSize, maxIteration)
 
 			# Computes the classifier weight

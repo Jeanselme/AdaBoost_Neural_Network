@@ -7,7 +7,7 @@
 import numpy as np
 import NeuralNetwork.Network as Network
 
-class AdaBoostNeuralNetwork:
+class AdaBoost:
 	"""
 	Class of multiple weak neural networks
 	"""

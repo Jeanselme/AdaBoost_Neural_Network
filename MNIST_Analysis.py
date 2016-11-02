@@ -33,7 +33,7 @@ def dataExtraction():
 
 def analysis(layers, training_labels, training_images, testing_labels, testing_images,
 	 learningRate, batchSize, iteration):
-	ada = Adaboost.AdaBoostNeuralNetwork()
+	ada = Adaboost.AdaBoost()
 
 	for layer in layers:
 		ada.addWeakClassifier(layer)
@@ -50,6 +50,10 @@ def analysis(layers, training_labels, training_images, testing_labels, testing_i
 
 if __name__ == '__main__':
 	trainL, trainI, testL, testI = dataExtraction()
+
+	analysis([[784,25,10],[784,25,10],[784,25,10],[784,25,10],[784,25,10],
+		[784,25,10],[784,25,10],[784,25,10],[784,25,10],[784,25,10]],
+		trainL, trainI, testL, testI, 0.01, 10, 3)
 
 	analysis([[784,25,10],[784,25,10],[784,25,10]],trainL, trainI, testL, testI,
 		0.01, 10, 10)
